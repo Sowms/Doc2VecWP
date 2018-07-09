@@ -1,0 +1,25 @@
+import nltk
+
+File = open("q2.txt") #open file
+lines = File.readlines() #read all lines
+File.close()
+
+newfile = open("q2-num-prop","w")
+counter = 0
+
+for line in lines:
+    sentences = nltk.sent_tokenize(line) #tokenize sentences
+    newline = lines[counter]
+    for sentence in sentences:
+        for word,pos in nltk.pos_tag(nltk.word_tokenize(str(sentence))):
+            if (pos == 'CD'):
+                newline = newline.replace(word, "NUMTOK")
+            if (pos == 'NNP' or pos == 'NNPS'):
+                newline = newline.replace(word, "CONTTOK")
+	    #if (pos == 'NNS'):
+                #newline = newline.replace(word, "ENTTOK")
+    counter += 1
+    newfile.write(newline)
+
+newfile.close()
+
