@@ -1,0 +1,127 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'git+https://github.com/danielfrg/tsne.git' ]
+2 info using npm@1.3.6
+3 info using node@v0.10.36
+4 verbose cache add [ 'git+https://github.com/danielfrg/tsne.git', null ]
+5 verbose cache add name=undefined spec="git+https://github.com/danielfrg/tsne.git" args=["git+https://github.com/danielfrg/tsne.git",null]
+6 verbose parsed url { protocol: 'git+https:',
+6 verbose parsed url   slashes: true,
+6 verbose parsed url   auth: null,
+6 verbose parsed url   host: 'github.com',
+6 verbose parsed url   port: null,
+6 verbose parsed url   hostname: 'github.com',
+6 verbose parsed url   hash: null,
+6 verbose parsed url   search: null,
+6 verbose parsed url   query: null,
+6 verbose parsed url   pathname: '/danielfrg/tsne.git',
+6 verbose parsed url   path: '/danielfrg/tsne.git',
+6 verbose parsed url   href: 'git+https://github.com/danielfrg/tsne.git' }
+7 silly lockFile 0252041d-ps-github-com-danielfrg-tsne-git git+https://github.com/danielfrg/tsne.git
+8 verbose lock git+https://github.com/danielfrg/tsne.git /home/sowmya/.npm/0252041d-ps-github-com-danielfrg-tsne-git.lock
+9 verbose addRemoteGit [ 'https://github.com/danielfrg/tsne.git', 'master' ]
+10 verbose git clone https://github.com/danielfrg/tsne.git Cloning into bare repository '/home/sowmya/.npm/_git-remotes/https-github-com-danielfrg-tsne-git-8644b74a'...
+11 verbose git fetch -a origin (https://github.com/danielfrg/tsne.git)
+12 verbose git rev-list -n1 master 075de5f641f7e222e40b8c4d407f95192e179228
+13 verbose resolved git url git+https://github.com/danielfrg/tsne.git#075de5f641f7e222e40b8c4d407f95192e179228
+14 verbose tar unpack /home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/tmp.tgz
+15 silly lockFile aacd690a-7551-0-20280241454020143-package tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/package
+16 verbose lock tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/package /home/sowmya/.npm/aacd690a-7551-0-20280241454020143-package.lock
+17 silly lockFile 64c4b327-7551-0-20280241454020143-tmp-tgz tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/tmp.tgz
+18 verbose lock tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/tmp.tgz /home/sowmya/.npm/64c4b327-7551-0-20280241454020143-tmp-tgz.lock
+19 silly gunzTarPerm modes [ '755', '644' ]
+20 silly gunzTarPerm extractEntry
+21 silly gunzTarPerm modified mode [ '', 509, 493 ]
+22 silly gunzTarPerm extractEntry .env
+23 silly gunzTarPerm modified mode [ '.env', 436, 420 ]
+24 silly gunzTarPerm extractEntry .gitattributes
+25 silly gunzTarPerm modified mode [ '.gitattributes', 436, 420 ]
+26 silly gunzTarPerm extractEntry .gitignore
+27 silly gunzTarPerm modified mode [ '.gitignore', 436, 420 ]
+28 silly gunzTarPerm extractEntry .style.yapf
+29 silly gunzTarPerm modified mode [ '.style.yapf', 436, 420 ]
+30 silly gunzTarPerm extractEntry .travis.yml
+31 silly gunzTarPerm modified mode [ '.travis.yml', 436, 420 ]
+32 silly gunzTarPerm extractEntry Dockerfile
+33 silly gunzTarPerm modified mode [ 'Dockerfile', 436, 420 ]
+34 silly gunzTarPerm extractEntry LICENSE
+35 silly gunzTarPerm modified mode [ 'LICENSE', 436, 420 ]
+36 silly gunzTarPerm extractEntry MANIFEST.in
+37 silly gunzTarPerm modified mode [ 'MANIFEST.in', 436, 420 ]
+38 silly gunzTarPerm extractEntry Makefile
+39 silly gunzTarPerm modified mode [ 'Makefile', 436, 420 ]
+40 silly gunzTarPerm extractEntry README.md
+41 silly gunzTarPerm modified mode [ 'README.md', 436, 420 ]
+42 silly gunzTarPerm extractEntry environment.yml
+43 silly gunzTarPerm modified mode [ 'environment.yml', 436, 420 ]
+44 silly gunzTarPerm extractEntry examples/
+45 silly gunzTarPerm modified mode [ 'examples/', 509, 493 ]
+46 silly gunzTarPerm extractEntry examples/iris.ipynb
+47 silly gunzTarPerm modified mode [ 'examples/iris.ipynb', 436, 420 ]
+48 silly gunzTarPerm extractEntry examples/mnist.ipynb
+49 silly gunzTarPerm modified mode [ 'examples/mnist.ipynb', 436, 420 ]
+50 silly gunzTarPerm extractEntry requirements.txt
+51 silly gunzTarPerm modified mode [ 'requirements.txt', 436, 420 ]
+52 silly gunzTarPerm extractEntry setup.cfg
+53 silly gunzTarPerm modified mode [ 'setup.cfg', 436, 420 ]
+54 silly gunzTarPerm extractEntry setup.py
+55 silly gunzTarPerm modified mode [ 'setup.py', 436, 420 ]
+56 silly gunzTarPerm extractEntry tsne/
+57 silly gunzTarPerm modified mode [ 'tsne/', 509, 493 ]
+58 silly gunzTarPerm extractEntry tsne/__init__.py
+59 silly gunzTarPerm modified mode [ 'tsne/__init__.py', 436, 420 ]
+60 silly gunzTarPerm extractEntry tsne/_version.py
+61 silly gunzTarPerm modified mode [ 'tsne/_version.py', 436, 420 ]
+62 silly gunzTarPerm extractEntry tsne/bh_sne.pyx
+63 silly gunzTarPerm modified mode [ 'tsne/bh_sne.pyx', 436, 420 ]
+64 silly gunzTarPerm extractEntry tsne/bh_sne_src/
+65 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/', 509, 493 ]
+66 silly gunzTarPerm extractEntry tsne/bh_sne_src/Readme.txt
+67 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/Readme.txt', 436, 420 ]
+68 silly gunzTarPerm extractEntry tsne/bh_sne_src/compile_linux
+69 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/compile_linux', 436, 420 ]
+70 silly gunzTarPerm extractEntry tsne/bh_sne_src/compile_mac
+71 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/compile_mac', 509, 493 ]
+72 silly gunzTarPerm extractEntry tsne/bh_sne_src/fast_tsne.m
+73 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/fast_tsne.m', 436, 420 ]
+74 silly gunzTarPerm extractEntry tsne/bh_sne_src/quadtree.cpp
+75 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/quadtree.cpp', 436, 420 ]
+76 silly gunzTarPerm extractEntry tsne/bh_sne_src/quadtree.h
+77 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/quadtree.h', 436, 420 ]
+78 silly gunzTarPerm extractEntry tsne/bh_sne_src/tsne.cpp
+79 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/tsne.cpp', 436, 420 ]
+80 silly gunzTarPerm extractEntry tsne/bh_sne_src/tsne.h
+81 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/tsne.h', 436, 420 ]
+82 silly gunzTarPerm extractEntry tsne/bh_sne_src/vptree.h
+83 silly gunzTarPerm modified mode [ 'tsne/bh_sne_src/vptree.h', 436, 420 ]
+84 silly gunzTarPerm extractEntry tsne/tests/
+85 silly gunzTarPerm modified mode [ 'tsne/tests/', 509, 493 ]
+86 silly gunzTarPerm extractEntry tsne/tests/__init__.py
+87 silly gunzTarPerm modified mode [ 'tsne/tests/__init__.py', 436, 420 ]
+88 silly gunzTarPerm extractEntry tsne/tests/test_iris.py
+89 silly gunzTarPerm modified mode [ 'tsne/tests/test_iris.py', 436, 420 ]
+90 silly gunzTarPerm extractEntry tsne/tests/test_seed.py
+91 silly gunzTarPerm modified mode [ 'tsne/tests/test_seed.py', 436, 420 ]
+92 silly gunzTarPerm extractEntry versioneer.py
+93 silly gunzTarPerm modified mode [ 'versioneer.py', 436, 420 ]
+94 silly lockFile aacd690a-7551-0-20280241454020143-package tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/package
+95 silly lockFile aacd690a-7551-0-20280241454020143-package tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/package
+96 silly lockFile 64c4b327-7551-0-20280241454020143-tmp-tgz tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/tmp.tgz
+97 silly lockFile 64c4b327-7551-0-20280241454020143-tmp-tgz tar:///home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/tmp.tgz
+98 silly lockFile 8644b74a-ps-github-com-danielfrg-tsne-git https://github.com/danielfrg/tsne.git
+99 error Error: ENOENT, open '/home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/package/package.json'
+100 error If you need help, you may report this log at:
+100 error     <http://github.com/isaacs/npm/issues>
+100 error or email it to:
+100 error     <npm-@googlegroups.com>
+101 error System Linux 3.19.3-100.fc20.x86_64
+102 error command "node" "/usr/bin/npm" "install" "git+https://github.com/danielfrg/tsne.git"
+103 error cwd /home/sowmya/Dropbox/IIT/Documents/Doc2Vec
+104 error node -v v0.10.36
+105 error npm -v 1.3.6
+106 error path /home/sowmya/tmp/npm-5006-KQ0epkXQ/1531112387551-0.20280241454020143/package/package.json
+107 error code ENOENT
+108 error errno 34
+109 verbose exit [ 34, true ]
