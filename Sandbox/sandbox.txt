@@ -1,0 +1,16 @@
+Peter starts with 8 erasers. Bridget gives Peter 3 more. How many erasers does Peter end with?
+There are 5 erasers in the box. Bridget removes 2 erasers from it. How many erasers are there now?
+Bridget has 8 erasers. Bridget gives Peter 3. How many erasers does Bridget have now?
+Bridget has 5 erasers. Bridget removes 2 erasers from a box. How many erasers does Bridget have now?
+Each box has 5 erasers. Bridget has 3 boxes. How many erasers does Bridget have?
+Peter has 5 erasers. Bridget has 8 erasers. How many more erasers does Bridget have?
+Peter has 5 erasers. Bridget has 3 erasers more than Peter. How many erasers does Bridget have?
+Peter starts with 8 erasers. Bridget takes 3 from Peter. How many erasers does Peter end with?
+There are 5 erasers in the box. Bridget puts 2 erasers into the box. How many erasers are there now?
+Bridget has 8 erasers. Bridget takes 3 from Peter. How many erasers does Bridget have now?
+Bridget has 8 erasers. Bridget removes 3 from a box. How many erasers does Bridget have now?
+Each box has some erasers. Bridget has 3 boxes. In total, Bridget has 15 erasers. How many erasers are there in each box?
+Peter has 5 erasers. Bridget has 8 erasers. How many erasers does Bridget have less than Peter?
+Peter has 5 erasers. Bridget has 3 erasers less than Peter. How many erasers does Bridget have?
+Peter has 5 erasers. Bridget has 8 erasers. How many erasers do they have altogether?
+There are 15 erasers. Peter took 5 of them and Bridget took the rest.How many erasers does Bridget have?
