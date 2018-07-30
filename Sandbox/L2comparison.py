@@ -1,4 +1,5 @@
 from gensim import models
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import nltk
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
@@ -80,26 +81,47 @@ def calcDistances(vectors):
         distances.append(numpy.linalg.norm(vectors[i] - vectors[i+1]))
     return distances
 
+def calcSimDistances(vectors):
+    distances = []
+    indices = [[1,2],[0,3],[10,13],[11,12],[14,17],[15,16]]
+    for i in xrange (0, len(indices)):
+        distances.append(numpy.linalg.norm(vectors[indices[i][0]] - vectors[indices[i][1]]))
+    return distances
+
+def apply(datafile):
+    model = Doc2Vec.load('doc2vec.model')
+    File = open(datafile) #open file
+    data = File.readlines() #read all lines
+    File.close()
+    data = [x.strip() for x in data]
+    data = nlp_clean(data)
+    y = []
+    for i in range(0, len(data)):
+	y.append(model.infer_vector(data[i]))
+    return y
+   
 
 plt.figure
 pltbarwidth = 0.15
-y1 = calcDistances(train('sandbox.txt'))
+train('illinois-questions')
+y1 = calcDistances(apply('sandbox.txt'))
 xcoord1 = [(i+1) for i in range(0, len(y1))]
 xcoord2 = [(i+1)+pltbarwidth for i in range(0, len(y1))]
 xcoord3 = [(i+1)+2*pltbarwidth for i in range(0, len(y1))]
-y2 = calcDistances(train('label-1-sandbox'))
-y3 = calcDistances(train('labelled-sandbox'))
+train('correlated-illinois-questions')
+y2 = calcDistances(apply('correlated-sandbox'))
+#y3 = calcDistances(train('labelled-sandbox'))
 conc = []
 conc.append(y1)
 conc.append(y2)
-conc.append(y3)
+#conc.append(y3)
 
 objects = ['Pair{0}'.format(i) for i in range(0, len(y1))] 
 
 plt.bar(xcoord1, y1, pltbarwidth, align='center', color = '#6495ed', label='Original')
-plt.bar(xcoord2, y2, pltbarwidth, align='center', color = '#ff5733', label='Single Annotation')
-plt.bar(xcoord3, y3, pltbarwidth, align='center', color = '#4e972a', label='Complete Annotation')
-plt.title('L2 Distances')
+plt.bar(xcoord2, y2, pltbarwidth, align='center', color = '#ff5733', label='Correlated Annotation')
+#plt.bar(xcoord3, y3, pltbarwidth, align='center', color = '#4e972a', label='Complete Annotation')
+plt.title('L2 Distances - Dissimilar')
 plt.xticks(xcoord1, objects)
 plt.legend()
 plt.ylabel('Usage')
@@ -115,6 +137,41 @@ plt.scatter(xcoord, y3, color = '#4e972a')
 '''
 plt.show()
 
+plt.figure
+pltbarwidth = 0.15
+train('illinois-questions')
+y1 = calcSimDistances(apply('sandbox.txt'))
+xcoord1 = [(i+1) for i in range(0, len(y1))]
+xcoord2 = [(i+1)+pltbarwidth for i in range(0, len(y1))]
+#xcoord3 = [(i+1)+2*pltbarwidth for i in range(0, len(y1))]
+train('correlated-illinois-questions')
+y2 = calcSimDistances(apply('correlated-sandbox'))
+#y3 = calcDistances(train('labelled-sandbox'))
+conc = []
+conc.append(y1)
+conc.append(y2)
+#conc.append(y3)
+
+objects = ['Pair{0}'.format(i) for i in range(0, len(y1))] 
+
+plt.bar(xcoord1, y1, pltbarwidth, align='center', color = '#6495ed', label='Original')
+plt.bar(xcoord2, y2, pltbarwidth, align='center', color = '#ff5733', label='Correlated Annotation')
+#plt.bar(xcoord3, y3, pltbarwidth, align='center', color = '#4e972a', label='Complete Annotation')
+plt.title('L2 Distances - Similar')
+plt.xticks(xcoord1, objects)
+plt.legend()
+plt.ylabel('Usage')
+#n, bins, patches = plt.hist(y1, bins=xcoord)
+#plt.ylim(0.6,3.1)
+
+#plt.plot(bins)
+'''
+plt.scatter(xcoord, y1, color = '#6495ed')
+plt.scatter(xcoord, y2, color = '#ff5733')
+plt.scatter(xcoord, y3, color = '#4e972a')
+
+'''
+plt.show()
 
 
 
