@@ -5,6 +5,7 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 import gensim
 import numpy
+from operator import itemgetter
 from sklearn import cross_validation
 from sklearn.grid_search import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier as RFC
@@ -18,9 +19,11 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 import json
 import numpy as np
+import bisect
 from pprint import pprint
 from gensim.test.utils import datapath, get_tmpfile
 from gensim.models import KeyedVectors
+from operator import itemgetter
 
 tokenizer = RegexpTokenizer(r'\w+')
 stopword_set = set(stopwords.words('english'))
@@ -75,17 +78,57 @@ def train(datafile):
         y.append(model.docvecs[docLabels[i]])
     return y
 
+
+def calcAvgDistances(vectors1, vectors2):
+    distances = []
+    #pos, dist
+    top5 = [[0,0],[0,0],[0,0],[0,0],[0,0]]
+    min5 = [[0,100],[0,100],[0,100], [0,100], [0,100]]
+    avg = 0.0
+    for i in xrange (0, len(vectors1)):
+        dist = numpy.linalg.norm(vectors1[i] - vectors2[i])
+        avg += dist
+        distances.append(dist)
+        var = []
+        var.append(i)
+        var.append(dist)
+        if (dist > top5[0][1]):
+	    top5.remove(top5[0])
+            top5.insert(0, var)
+            top5 = sorted(top5, key=itemgetter(1))
+        if (dist < min5[4][1]):
+	    min5.remove(min5[4])
+            min5.insert(0, var)
+            min5 = sorted(min5, key=itemgetter(1))
+    print top5
+    print min5
+    avg = avg / (len(vectors1))
+    return avg
+
+print(calcAvgDistances(train('illinois-questions'), train('correlated-illinois-questions')))
+
+'''
 def calcDistances(vectors):
     distances = []
+    avg = 0.0
     for i in xrange (0, len(vectors), 2):
-        distances.append(numpy.linalg.norm(vectors[i] - vectors[i+1]))
+        dist = numpy.linalg.norm(vectors[i] - vectors[i+1])
+        avg += dist
+        distances.append(dist)
+    avg = avg / (len(vectors)/2)
+    print avg
     return distances
 
 def calcSimDistances(vectors):
     distances = []
     indices = [[1,2],[0,3],[10,13],[11,12],[14,17],[15,16]]
+    avg = 0.0
     for i in xrange (0, len(indices)):
-        distances.append(numpy.linalg.norm(vectors[indices[i][0]] - vectors[indices[i][1]]))
+        dist = numpy.linalg.norm(vectors[indices[i][0]] - vectors[indices[i][1]])
+        distances.append(dist)
+	avg += dist
+    avg /= len(indices)
+    print avg
     return distances
 
 def apply(datafile):
@@ -129,12 +172,6 @@ plt.ylabel('Usage')
 #plt.ylim(0.035,0.05)
 
 #plt.plot(bins)
-'''
-plt.scatter(xcoord, y1, color = '#6495ed')
-plt.scatter(xcoord, y2, color = '#ff5733')
-plt.scatter(xcoord, y3, color = '#4e972a')
-
-'''
 plt.show()
 
 plt.figure
@@ -165,14 +202,10 @@ plt.ylabel('Usage')
 #plt.ylim(0.6,3.1)
 
 #plt.plot(bins)
-'''
-plt.scatter(xcoord, y1, color = '#6495ed')
-plt.scatter(xcoord, y2, color = '#ff5733')
-plt.scatter(xcoord, y3, color = '#4e972a')
 
-'''
+
 plt.show()
-
+'''
 
 
 

@@ -88,7 +88,7 @@ for i in range(0, len(dataSingleOp)):
     data.append(dataSingleOp[i]["sQuestion"])
 '''
 
-File = open("illinois-questions") #open file
+File = open("remaining-illinois") #open file
 data = File.readlines() #read all lines
 File.close()
 
@@ -155,7 +155,7 @@ print "model saved"
 #https://www.kaggle.com/sgunjan05/document-clustering-using-doc2vec-word2vec
 
 
-f1 = open("correlated-illinois-output","r")
+f1 = open("remaining-output","r")
 output = f1.readlines();
 f1.close()
 
@@ -192,13 +192,13 @@ def train_classifier(X,y):
     clf.fit(X, y)
     return clf
 
-'''
+
 X_train, X_test, y_train, y_test = cross_validation.train_test_split(y, intoutput, test_size=0.2, random_state=17)
 classifier = train_classifier(X_train,y_train)
 print (classifier.best_score_, "----------------Best Accuracy score on Cross Validation Sets")
 print (classifier.score(X_test,y_test))
-'''
 
+'''
 #testing sandbox
 f1 = open("sandbox.txt","r")
 testx = f1.readlines();
@@ -221,7 +221,7 @@ print(len(inptest))
 print(len(outtest))
 classifier = train_classifier(y, intoutput)
 print (classifier.score(inptest,outtest))
-
+'''
 
 avg = 0.0
 
@@ -229,7 +229,7 @@ avg = 0.0
 
 
 for j in range(0, 100):
-    arrY = np.asarray(inptest)
+    arrY = np.asarray(y)
     kmeans_model = KMeans(n_clusters=4, init='k-means++', max_iter=100)  
     X = kmeans_model.fit(arrY)
     labels = kmeans_model.labels_.tolist()
@@ -243,7 +243,7 @@ for j in range(0, 100):
     matrix = numpy.zeros_like(matrix)
     for i in range(0, len(labels)):
     #print(`labels[i]` + "|" + `intoutput[i]`)
-        matrix[labels[i]][outtest[i]] += 1
+        matrix[labels[i]][intoutput[i]] += 1
     num = 0
     for i in range(0, 4):
         num += max(matrix[i])
