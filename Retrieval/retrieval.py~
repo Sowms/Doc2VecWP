@@ -1,0 +1,141 @@
+from gensim import models
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+import nltk
+from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
+import gensim
+import numpy
+from sklearn import cross_validation
+from sklearn.grid_search import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier as RFC
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+import pickle
+from sklearn.cluster import KMeans
+from sklearn import metrics
+import pylab as pl
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.neighbors import NearestNeighbors
+import json
+import numpy as np
+from pprint import pprint
+from gensim.test.utils import datapath, get_tmpfile
+from gensim.models import KeyedVectors
+#import tsne
+#from tsne import bh_sne
+
+
+def preprocess(text):
+    text = text.lower()
+    doc = word_tokenize(text)
+    doc = [word for word in doc if word not in stop_words]
+    #doc = [word for word in doc if word.isalpha()] #restricts string to alphabetic characters only
+    return doc
+
+
+File = open("annotated-illinois-questions") #open file
+data = File.readlines() #read all lines
+File.close()
+
+# you may also want to remove whitespace characters like `\n` at the end of each line
+data = [x.strip() for x in data]
+
+docLabels = []
+for counter in range(0, len(data)):
+    docLabels.append('wp' + `counter`)
+#print docLabels[0]
+
+#https://medium.com/@mishra.thedeepak/doc2vec-in-a-simple-way-fa80bfe81104
+
+tokenizer = RegexpTokenizer(r'\w+')
+stopword_set = set(stopwords.words('english'))
+
+def nlp_clean(data):
+   new_data = []
+   for d in data:
+      new_str = d.lower()
+      dlist = tokenizer.tokenize(new_str)
+      dlist = list(set(dlist).difference(stopword_set))
+      new_data.append(dlist)
+   return new_data
+
+
+class LabeledLineSentence(object):
+    def __init__(self, doc_list, labels_list):
+        self.labels_list = labels_list
+        self.doc_list = doc_list
+    def __iter__(self):
+        for idx, doc in enumerate(self.doc_list):
+              yield gensim.models.doc2vec.LabeledSentence(doc, [self.labels_list[idx]])
+
+data = nlp_clean(data)
+#print data[0]
+
+
+it = LabeledLineSentence(data, docLabels)
+
+model = gensim.models.Doc2Vec(min_count=0, alpha=0.025, min_alpha=0.025)
+model.build_vocab(it)
+#training of model
+for epoch in range(10):
+ print 'iteration'+str(epoch+1)
+ model.train(it, total_examples = len(data), epochs = 10)
+ model.alpha -= 0.002
+ model.min_alpha = model.alpha
+#saving the created model
+model.save('doc2vec.model')
+print "model saved"
+
+#f1 = open("vec.txt","w+")
+#for counter in range(0, len(data)):
+#	f1.write(model.docvecs[docLabels[counter]])
+#f1.close()
+
+#https://www.kaggle.com/sgunjan05/document-clustering-using-doc2vec-word2vec
+
+
+f1 = open("illinois-output","r")
+output = f1.readlines();
+f1.close()
+
+intoutput = []
+for i in output:
+    i = i.rstrip();
+    intoutput.append(int(i))
+    #print i.rstrip() + '|' + `l[counter]`;
+
+y = []
+for i in range(0,len(data)):
+    y.append(model.docvecs[docLabels[i]])
+
+y = np.array(y)
+
+knn = NearestNeighbors(n_neighbors=11)
+#y.reshape(-1,1)
+knn.fit(y)
+
+NearestNeighbors(algorithm='auto', leaf_size=30, n_neighbors=11, p=2, radius=1.0)
+
+def calcAccuracy(neighbours, wpIn):
+    k = len(neighbours[0])
+    op = intoutput[wpIn]
+    match = 0.0
+    for i in range(1, k):
+	if (intoutput[neighbours[0][i]] == op):
+	    match += 1
+    return match/(k-1)
+
+
+
+avg = 0.0
+
+for i in range(0, len(y)):
+    neighbours = knn.kneighbors(np.array(y[i]).reshape(1,-1), return_distance=False)
+    avg = avg + calcAccuracy(neighbours, i)
+
+avg = avg/len(y)
+print(avg)
+
+
+
