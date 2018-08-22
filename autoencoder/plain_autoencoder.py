@@ -86,14 +86,14 @@ print(X.shape[1])
 
 model = Sequential()
 model.add(Embedding(100, embed_dim,input_length = X.shape[1], dropout = 0.2))
-model.add(LSTM(lstm_out, return_sequences = True, dropout_U = 0.2, dropout_W = 0.2))
+#model.add(LSTM(lstm_out, return_sequences = True, dropout_U = 0.2, dropout_W = 0.2))
 model.add(Dense(encoding_dim, activation='relu'))
 model.add(Dense(128, activation='sigmoid'))
 model.compile(loss = 'binary_crossentropy', optimizer='adam',metrics = ['accuracy'])
 print(model.summary())
 
 intermediate_layer_model = Model(inputs=model.input,
-                                 outputs=model.layers[2].output)
+                                 outputs=model.layers[1].output)
 encoded_wp = intermediate_layer_model.predict(X)
 
 embedding_model = Model(inputs=model.input,

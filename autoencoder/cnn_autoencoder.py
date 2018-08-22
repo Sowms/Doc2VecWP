@@ -1,6 +1,6 @@
 #https://blog.keras.io/building-autoencoders-in-keras.html
 
-from keras.layers import Input, Dense, Embedding, LSTM
+from keras.layers import Input, Dense, Embedding, LSTM, Convolution1D
 from keras.models import Model, Sequential
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -75,22 +75,23 @@ intoutput = [0] * len(data)
 X = np.asarray(X)
 X = X.astype('float32')
 
-x_train, x_test, y_train, y_test = cross_validation.train_test_split(X, intoutput, test_size=0.2, random_state=17)
+#x_train, x_test, y_train, y_test = cross_validation.train_test_split(X, intoutput, test_size=0.2, random_state=17)
 
 
 embed_dim = 128
 lstm_out = 200
 batch_size = 32
 
-print(X.shape[1])
+
 
 model = Sequential()
-model.add(Embedding(100, embed_dim,input_length = X.shape[1], dropout = 0.2))
-model.add(LSTM(lstm_out, return_sequences = True, dropout_U = 0.2, dropout_W = 0.2))
+model.add(Embedding(100, embed_dim, input_length = X.shape[1], dropout = 0.2))
+model.add(Convolution1D(nb_filter=256, filter_length=1))
 model.add(Dense(encoding_dim, activation='relu'))
 model.add(Dense(128, activation='sigmoid'))
 model.compile(loss = 'binary_crossentropy', optimizer='adam',metrics = ['accuracy'])
 print(model.summary())
+
 
 intermediate_layer_model = Model(inputs=model.input,
                                  outputs=model.layers[2].output)
@@ -99,6 +100,7 @@ encoded_wp = intermediate_layer_model.predict(X)
 embedding_model = Model(inputs=model.input,
                                  outputs=model.layers[0].output)
 embedded_wp = embedding_model.predict(X)
+
 
 '''
 input_wp = Input(shape=(200,))
@@ -121,6 +123,7 @@ model.fit(X, embedded_wp,
           shuffle=True)
           #validation_data=(x_test, x_test))
 
+
 #encoded_wp = encoder.predict(X)
 
 f1 = open("illinois-output","r")
@@ -134,8 +137,10 @@ for i in output:
 
 
 avg = 0.0
+
 arrY = np.asarray(encoded_wp)
 arrY = arrY.reshape(len(arrY), 30*32)
+
 
 for j in range(0, 100):
     kmeans_model = KMeans(n_clusters=4, init='k-means++', max_iter=100)  
@@ -159,6 +164,3 @@ for j in range(0, 100):
     avg = avg + purity
 avg = avg/100
 print(avg)
-
-
-
