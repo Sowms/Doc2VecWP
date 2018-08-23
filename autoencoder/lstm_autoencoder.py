@@ -1,6 +1,6 @@
 #https://blog.keras.io/building-autoencoders-in-keras.html
 
-from keras.layers import Input, Dense, Embedding, LSTM
+from keras.layers import Input, Dense, Embedding, LSTM, Flatten
 from keras.models import Model, Sequential
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
@@ -26,6 +26,28 @@ tokenizer.fit_on_texts(data)
 #print(tokenizer.word_index)  # To see the dicstionary
 X = tokenizer.texts_to_sequences(data)
 X = pad_sequences(X)
+word_index = tokenizer.word_index
+
+embeddings_index = {}
+f = open('glove.6B.50d.txt')
+for line in f:
+    values = line.split()
+    word = values[0]
+    coefs = np.asarray(values[1:], dtype='float32')
+    embeddings_index[word] = coefs
+f.close()
+embedding_matrix = np.zeros((len(word_index) + 1, 50))
+for word, i in word_index.items():
+    embedding_vector = embeddings_index.get(word)
+    if embedding_vector is not None:
+        # words not found in embedding index will be all-zeros.
+        embedding_matrix[i] = embedding_vector
+
+embedding_layer = Embedding(len(word_index) + 1,
+                            50,
+                            weights=[embedding_matrix],
+                            input_length=30,
+                            trainable=False)
 
 
 docLabels = []
@@ -85,20 +107,25 @@ batch_size = 32
 print(X.shape[1])
 
 model = Sequential()
-model.add(Embedding(100, embed_dim,input_length = X.shape[1], dropout = 0.2))
+model.add(embedding_layer)
 model.add(LSTM(lstm_out, return_sequences = True, dropout_U = 0.2, dropout_W = 0.2))
+model.add(Flatten())
 model.add(Dense(encoding_dim, activation='relu'))
-model.add(Dense(128, activation='sigmoid'))
+model.add(Dense(30*50, activation='sigmoid'))
 model.compile(loss = 'binary_crossentropy', optimizer='adam',metrics = ['accuracy'])
 print(model.summary())
 
 intermediate_layer_model = Model(inputs=model.input,
-                                 outputs=model.layers[2].output)
+                                 outputs=model.layers[3].output)
 encoded_wp = intermediate_layer_model.predict(X)
 
 embedding_model = Model(inputs=model.input,
                                  outputs=model.layers[0].output)
 embedded_wp = embedding_model.predict(X)
+
+arrY = np.asarray(embedded_wp)
+arrY = arrY.reshape(len(arrY), 30*50)
+
 
 '''
 input_wp = Input(shape=(200,))
@@ -115,7 +142,7 @@ decoder = Model(encoded_input, decoder_layer(encoded_input))
 #autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
 '''
 
-model.fit(X, embedded_wp,
+model.fit(X, arrY,
           epochs=50,
           batch_size=256,
           shuffle=True)
@@ -135,7 +162,7 @@ for i in output:
 
 avg = 0.0
 arrY = np.asarray(encoded_wp)
-arrY = arrY.reshape(len(arrY), 30*32)
+#arrY = arrY.reshape(len(arrY), 30*32)
 
 for j in range(0, 100):
     kmeans_model = KMeans(n_clusters=4, init='k-means++', max_iter=100)  
