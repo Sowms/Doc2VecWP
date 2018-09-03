@@ -78,7 +78,7 @@ class LabeledLineSentence(object):
 data = nlp_clean(data)
 
 # this is the size of our encoded representations
-encoding_dim = 32  
+encoding_dim = 300
 
 '''
 # this is our input placeholder
