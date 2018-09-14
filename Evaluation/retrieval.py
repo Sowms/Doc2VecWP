@@ -1,6 +1,8 @@
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 import pickle
+import sys
+import io
 #import tsne
 #from tsne import bh_sne
 
@@ -14,11 +16,13 @@ inpFile.close()
 
 y = np.array(itemlist)
 
-knn = NearestNeighbors(n_neighbors=6)
+n = int(sys.stdin.readline())
+
+knn = NearestNeighbors(n_neighbors=n)
 #y.reshape(-1,1)
 knn.fit(y)
 
-NearestNeighbors(algorithm='auto', leaf_size=30, n_neighbors=16, p=2, radius=1.0)
+NearestNeighbors(algorithm='auto', leaf_size=30, n_neighbors=n, p=2, radius=1.0)
 
 def calcAccuracy(neighbours, wpIn):
     k = len(neighbours[0])
