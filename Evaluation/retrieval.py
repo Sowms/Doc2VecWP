@@ -10,7 +10,7 @@ File = open("schemas") #open file
 schemas = File.readlines() #read all lines
 File.close()
 
-inpFile = open("avgword2vec_model","rb")
+inpFile = open("siamese_model","rb")
 itemlist = pickle.load(inpFile)
 inpFile.close()
 
