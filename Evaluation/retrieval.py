@@ -10,12 +10,12 @@ File = open("schemas") #open file
 schemas = File.readlines() #read all lines
 File.close()
 
-inpFile = open("siamese_model","rb")
+inpFile = open("siamese_model_perturb","rb")
 itemlist = pickle.load(inpFile)
 inpFile.close()
 
 y = np.array(itemlist)
-
+print(len(y))
 n = int(sys.stdin.readline())
 
 knn = NearestNeighbors(n_neighbors=n)
