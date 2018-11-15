@@ -24,10 +24,14 @@ from keras import backend as K
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from sklearn import cross_validation
+from nltk.stem import WordNetLemmatizer
+from sklearn.neighbors import NearestNeighbors
 import pickle
+from numpy.random import seed
+seed(27)
 
 num_classes = 4
-epochs = 100
+epochs = 20
 
 File = open("questions") #open file
 rawdata = File.readlines() #read all lines
@@ -42,11 +46,17 @@ schemas = map(int, schemas)
 # you may also want to remove whitespace characters like `\n` at the end of each line
 data = [x.strip() for x in rawdata]
 
+indices = []
+
+for i in range(0, len(data)):
+    indices.append(i)
+
 print(len(data))
 
 entities = []
 persons = []
 verbs = []
+places = []
 
 lines = rawdata
 jar = 'stanford-ner.jar'
@@ -63,6 +73,12 @@ for line in lines:
     sentences = nltk.sent_tokenize(line) #tokenize sentences
     tokenized_sents.append(nltk.word_tokenize(str(sentences)))
     for sentence in sentences:
+	if ("in a " in str(sentence)):
+	   string = str(sentence)
+	   index = string.index("in a ") + len("in a ")
+	   string = string[index:]
+	   word = nltk.word_tokenize(string)[0]
+	   places.append(word)
         for word,pos in nltk.pos_tag(nltk.word_tokenize(str(sentence))):
             if (pos == 'NNS'):
 		if (word not in entities):
@@ -92,6 +108,20 @@ outfile = open("entities","wb")
 pickle.dump(persons, outfile)
 outfile.close()
 
+train_indices = random.sample(indices, 450)
+test_indices = []
+train_data = []
+test_data = []
+test_output = []
+
+for i in range(0, len(data)):
+    if (i in train_indices):
+	train_data.append(data[i])
+    else:
+	test_data.append(data[i])
+	test_indices.append(i)
+
+
 def create_pairs(x, persons, entities):
     pairs = []
     labels = []
@@ -110,6 +140,8 @@ def create_pairs(x, persons, entities):
     	curr_persons = []
         curr_entities = []
         curr_verbs = []
+	curr_adj = []
+	curr_places = []
         for a,y in classified_text[i]:
             if (y == 'PERSON'):
                 if (a not in curr_persons):
@@ -118,40 +150,49 @@ def create_pairs(x, persons, entities):
             if (pos == 'NNS'):
 		if (word not in curr_entities and word in entities):
 	            curr_entities.append(word)
+	    if ('NN' in pos):
+		if (word not in curr_places and word in places):
+		    curr_places.append(word)
             if ('VB' in pos):
 		if (word not in curr_verbs and word in verbs):
 	            curr_verbs.append(word)
-
+	    if ('JJ' == pos):
+		curr_adj.append(word)
         num_persons = len(curr_persons)
         num_entities = len(curr_entities)
         num_verbs = len(curr_verbs)
         print(curr_persons)
         print(curr_entities)
         print(curr_verbs)
-        for k in (0, 10):
+	'''
+	for k in range(0, 20):
             new_prob = x[i]
             for j in range(0, num_persons):
 	        repl_person = persons[random.randint(0, len(persons)-1)]
                 new_prob = new_prob.replace(curr_persons[j], repl_person)
-            if (num_persons != 0):
+            if (num_persons != 0 and new_prob not in all_problems):
                 all_problems.append(new_prob)
                 pairs += [[x[i], new_prob]]
                 labels += [1]
+	'''
+	for k in range(0, 50):
             new_prob = x[i]
-            new_prob1 = x[i]
+            #new_prob1 = x[i]
             for j in range(0, num_entities):
 	        repl_entity = entities[random.randint(0, len(entities)-1)]
-                new_prob1 = new_prob1.replace(curr_entities[j], repl_entity)
+                #new_prob1 = new_prob1.replace(curr_entities[j], repl_entity)
                 new_prob = new_prob.replace(curr_entities[j], repl_entity)
+	        #if (new_prob1 not in all_problems):
+                #    all_problems.append(new_prob1)
+                #    pairs += [[x[i], new_prob1]]
+                #    labels += [1]
             if (new_prob not in all_problems):
                 all_problems.append(new_prob)
                 pairs += [[x[i], new_prob]]
                 labels += [1]
-            if (new_prob1 not in all_problems):
-                all_problems.append(new_prob1)
-                pairs += [[x[i], new_prob1]]
-                labels += [1]
-        for k in (0, 10):
+            
+	'''
+        for k in (0, 5):
             new_prob2 = x[i]
             for j in range(0, num_verbs):
 	        repl_verb = verbs[random.randint(0, len(verbs)-1)]
@@ -159,16 +200,130 @@ def create_pairs(x, persons, entities):
 	        if (new_prob2 not in all_problems):
                     all_problems.append(new_prob2)
                     pairs += [[x[i], new_prob2]]
+                    labels += [1]
+        for k in (0,5):
+            new_prob2 = x[i]
+            for j in range(0, len(curr_places)):
+	        repl_place = places[random.randint(0, len(places)-1)]
+                new_prob2 = new_prob2.replace(curr_places[j], repl_place)
+	        if (new_prob2 not in all_problems):
+                    all_problems.append(new_prob2)
+                    pairs += [[x[i], new_prob2]]
+                    labels += [1]
+
+
+        for k in (0, 2):
+            new_prob2 = x[i]
+            for j in range(0, len(curr_adj)):
+                new_prob2 = new_prob2.replace(curr_adj[j], "more "+curr_adj[j])
+	        if (new_prob2 not in all_problems):
+                    all_problems.append(new_prob2)
+                    pairs += [[x[i], new_prob2]]
+                    labels += [0]
+	for k in (0, 2):
+            new_prob2 = x[i]
+            for j in range(0, len(curr_adj)):
+                new_prob2 = new_prob2.replace(curr_adj[j], "less "+curr_adj[j])
+	        if (new_prob2 not in all_problems):
+                    all_problems.append(new_prob2)
+                    pairs += [[x[i], new_prob2]]
+                    labels += [0]
+	for k in range(0,2):
+            new_prob = x[i]
+	    #single agent to multi-agent
+	    if (num_persons == 1):
+                lim = new_prob.count(curr_persons[0])
+		for j in (0, lim):
+                    repl_person = persons[random.randint(0, len(persons)-1)]
+		    new_prob = new_prob.replace(curr_persons[0], repl_person, 1)
+		if (new_prob not in all_problems):
+                    all_problems.append(new_prob)
+                    pairs += [[x[i], new_prob]]
+                    labels += [0]
+	    
+	    if (num_persons > 1): #multi-agent to single agent
+                repl_person = persons[random.randint(0, len(persons)-1)]
+		for j in range(0, len(curr_persons)):
+                    new_prob = new_prob.replace(curr_persons[j], repl_person)
+                    all_problems.append(new_prob)
+                    pairs += [[x[i], new_prob]]
                     labels += [0]
 
+        #multiple entities
+        for k in range(0, 2):
+            new_prob = x[i]
+	    #single entity to multi-entities
+	    if (num_entities == 1):
+                lim = new_prob.count(curr_entities[0])
+		for j in (0, lim):
+                    repl_person = entities[random.randint(0, len(entities)-1)]
+		    new_prob = new_prob.replace(curr_entities[0], repl_person, 1)
+                all_problems.append(new_prob)
+                pairs += [[x[i], new_prob]]
+                labels += [0]
+
+	    elif (num_entities > 1): #multi-entity to single entity
+                repl_person = entities[random.randint(0, len(entities)-1)]
+		for j in range(0, len(curr_entities)):
+                    new_prob = new_prob.replace(curr_entities[j], repl_person)
+                    all_problems.append(new_prob)
+
+                    pairs += [[x[i], new_prob]]
+                    labels += [0]
+	
+	#lemma change
+        lemmatizer = WordNetLemmatizer()
+	for k in range(0, 2):
+            new_prob = ""
+            for sentence in sentences:
+	        for word in nltk.word_tokenize(str(sentence)):
+                    new_prob = new_prob + lemmatizer.lemmatize(word) + " "
+		new_prob = new_prob + ". "
+            all_problems.append(new_prob)
+            pairs += [[x[i], new_prob]]
+            labels += [0]
+	
+	#lemma verb
+	lemmatizer = WordNetLemmatizer()
+	for k in range(0, 2):
+            new_prob = ""
+            for sentence in sentences:
+	        for word, pos in nltk.pos_tag(nltk.word_tokenize(str(sentence))):
+		    if ("VB" in pos):
+	                new_prob = new_prob + str(lemmatizer.lemmatize(word)) + " "
+		    else:
+	                new_prob = new_prob + word + " "
+            all_problems.append(new_prob.strip())
+            pairs += [[x[i], new_prob.strip()]]
+            labels += [0]
+	#be verb
+	lemmatizer = WordNetLemmatizer()
+	for k in range(0, 2):
+            new_prob = ""
+            for sentence in sentences:
+	        for word, pos in nltk.pos_tag(nltk.word_tokenize(str(sentence))):
+		    lemma = str(lemmatizer.lemmatize(word))
+		    if ("VB" in pos and "be" not in lemma):
+	                new_prob = new_prob + "is " 
+		    else:
+	                new_prob = new_prob + word + " "
+            all_problems.append(new_prob.strip())
+            pairs += [[x[i], new_prob.strip()]]
+            labels += [0]
+	'''
     return pairs, np.array(labels), all_problems
 
 
-pairs, labels, all_problems = create_pairs(data, persons, entities)
+pairs, labels, all_problems = create_pairs(train_data, persons, entities)
 
+full_problems = []
 outfile = open("all_problems","w")
 for i in range(0, len(all_problems)):
     outfile.write(all_problems[i]+"\n")
+    full_problems.append(all_problems[i])
+for i in range(0, len(test_data)):
+    outfile.write(test_data[i]+"\n")
+    full_problems.append(test_data[i])
 outfile.close()
 
 '''
@@ -203,17 +358,17 @@ def get_filled_template(problem, curr_persons, curr_entites, curr_num):
 
 
 tokenizer = Tokenizer(nb_words=100, lower=True,split=' ')
-tokenizer.fit_on_texts(all_problems)
+tokenizer.fit_on_texts(full_problems)
 #print(tokenizer.word_index)  # To see the dictionary
 X = tokenizer.texts_to_sequences(all_problems)
-X = pad_sequences(X)
+X = pad_sequences(X, maxlen = 31)
 
 print(X.shape)
 
 word_index = tokenizer.word_index
 
 embeddings_index = {}
-f = open('glove.6B.50d.txt')
+f = open('glove.6B.100d.txt')
 for line in f:
     values = line.split()
     word = values[0]
@@ -221,7 +376,7 @@ for line in f:
     embeddings_index[word] = coefs
 f.close()
 
-embedding_matrix = np.zeros((len(word_index) + 1, 50))
+embedding_matrix = np.zeros((len(word_index) + 1, 100))
 for word, i in word_index.items():
     embedding_vector = embeddings_index.get(word)
     if embedding_vector is not None:
@@ -229,7 +384,7 @@ for word, i in word_index.items():
         embedding_matrix[i] = embedding_vector
 
 embedding_layer = Embedding(len(word_index) + 1,
-                            50,
+                            100,
                             weights=[embedding_matrix],
                             input_length=X.shape[1],
                             trainable=False)
@@ -239,7 +394,7 @@ model1.add(embedding_layer)
 model1.compile('rmsprop', 'mse')
 ans = model1.predict(X)
 
-X1 = tokenizer.texts_to_sequences(data)
+X1 = tokenizer.texts_to_sequences(test_data)
 X1 = pad_sequences(X1, maxlen = X.shape[1])
 ans1 = model1.predict(X1)
 
@@ -273,9 +428,9 @@ def create_vec_pairs(pairs, labels, all_problems, ans):
     return np.array(vec_pairs), np.array(labels)
 
 def create_base_network(input_shape):
-    input = Input(shape=input_shape)
-    x = Bidirectional(LSTM(64))(input)
-    m = Model(input, x)
+    input1 = Input(shape=input_shape)
+    x = Bidirectional(LSTM(256))(input1)
+    m = Model(input1, x)
     print(m.summary())
     return m
 
@@ -311,7 +466,10 @@ digit_indices = [np.where(y_test == i)[0] for i in range(num_classes)]
 te_pairs, te_y = create_pairs(x_test, digit_indices)
 '''
 
-tr_pairs, tr_y = create_vec_pairs(pairs, labels, all_problems, ans)
+
+
+t_pairs, t_y = create_vec_pairs(pairs, labels, all_problems, ans)
+tr_pairs, te_pairs, tr_y, te_y = cross_validation.train_test_split(t_pairs, t_y, test_size=0.2, random_state=17)
 input_shape = ans.shape[1:]
 
 # network definition
@@ -336,8 +494,8 @@ rms = RMSprop()
 model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
 model.fit([tr_pairs[:, 0], tr_pairs[:, 1]], tr_y,
           batch_size=128,
-          epochs=epochs)
-#          validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y))
+          epochs=epochs,
+          validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y))
 
 print(model.summary())
 
@@ -352,8 +510,46 @@ pred_model = Model(inputs=input_a,
                                  outputs=processed_a)
 embedded_wp = pred_model.predict(ans1)
 
-outfile = open("siamese_model_perturb","wb")
+r_indices = test_indices
+
+outfile = open("siamese_model_perturb_onlyNP","wb")
 pickle.dump(embedded_wp, outfile)
+outfile.close()
+
+File = open("schemas") #open file
+schemas = File.readlines() #read all lines
+File.close()
+
+y = embedded_wp
+
+def calcAccuracy(neighbours, wpIn):
+    k = len(neighbours[0])
+    schema = schemas[int(r_indices[wpIn])]
+    match = 0.0
+    for i in range(1, k):
+	if (schemas[int(r_indices[neighbours[0][i]])] == schema):
+	    match += 1
+    return match/(k-1)
+
+
+outfile = open("entity_output","a")
+
+
+
+for j in range(2,11):
+    knn = NearestNeighbors(n_neighbors=j)
+    knn.fit(y)
+    NearestNeighbors(algorithm='auto', leaf_size=30, n_neighbors=j, p=2, radius=1.0)
+    avg = 0.0
+    for i in range(0, len(y)):
+        neighbours = knn.kneighbors(np.array(y[i]).reshape(1,-1), return_distance=False)
+        val = calcAccuracy(neighbours, i)
+        avg = avg + val
+    avg = avg/len(y)
+    print(avg)
+    outfile.write(str(avg)+"\t")
+
+outfile.write("\n");
 outfile.close()
 
 '''

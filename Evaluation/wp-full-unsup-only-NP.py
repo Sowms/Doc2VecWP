@@ -128,7 +128,7 @@ def create_pairs(x, persons, entities):
         print(curr_persons)
         print(curr_entities)
         print(curr_verbs)
-        for k in (0, 10):
+	for k in (0, 10):
             new_prob = x[i]
             for j in range(0, num_persons):
 	        repl_person = persons[random.randint(0, len(persons)-1)]
@@ -151,15 +151,8 @@ def create_pairs(x, persons, entities):
                 all_problems.append(new_prob1)
                 pairs += [[x[i], new_prob1]]
                 labels += [1]
-        for k in (0, 10):
-            new_prob2 = x[i]
-            for j in range(0, num_verbs):
-	        repl_verb = verbs[random.randint(0, len(verbs)-1)]
-                new_prob2 = new_prob2.replace(curr_verbs[j], repl_verb)
-	        if (new_prob2 not in all_problems):
-                    all_problems.append(new_prob2)
-                    pairs += [[x[i], new_prob2]]
-                    labels += [0]
+        pairs += [[x[i], x[random.randint(0, len(x)-1)]]]
+        labels += [0]
 
     return pairs, np.array(labels), all_problems
 
@@ -352,7 +345,7 @@ pred_model = Model(inputs=input_a,
                                  outputs=processed_a)
 embedded_wp = pred_model.predict(ans1)
 
-outfile = open("siamese_model_perturb","wb")
+outfile = open("siamese_model_perturb_onlyNP","wb")
 pickle.dump(embedded_wp, outfile)
 outfile.close()
 

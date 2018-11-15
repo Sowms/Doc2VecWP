@@ -14,29 +14,40 @@ import nltk
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 import gensim
+import math
 import pickle
+import random
+from sklearn import cross_validation
 from sklearn.neighbors import NearestNeighbors
 from ndcg import ndcg_at_k
-
+from numpy.random import seed
+seed(27)
+from tensorflow import set_random_seed
+set_random_seed(2)
 
 File = open("questions") #open file
 data = File.readlines() #read all lines
 File.close()
 
+File = open("schemas") #open file
+schemas = File.readlines() #read all lines
+File.close()
+
 # you may also want to remove whitespace characters like `\n` at the end of each line
 data = [x.strip() for x in data]
+
 
 tokenizer = Tokenizer(nb_words=100, lower=True,split=' ')
 tokenizer.fit_on_texts(data)
 #print(tokenizer.word_index)  # To see the dictionary
 X = tokenizer.texts_to_sequences(data)
-X = pad_sequences(X)
+X = pad_sequences(X, maxlen = 31)
 
 print(X.shape)
 
 X1 = X[:, 1:]
 X1 = np.pad(X1,(0,1),'constant')
-X1 = np.delete(X1, (562), axis=0)
+X1 = np.delete(X1, (len(X)), axis=0)
 print(X[0])
 print(X1.shape)
 
@@ -61,7 +72,7 @@ for word, i in word_index.items():
 embedding_layer = Embedding(len(word_index) + 1,
                             100,
                             weights=[embedding_matrix],
-                            input_length=30,
+                            input_length=31,
                             trainable=False)
 
 model1 = Sequential()
@@ -70,6 +81,24 @@ model1.compile('rmsprop', 'mse')
 ans = model1.predict(X)
 ans1 = model1.predict(X1)
 print(ans.shape)
+
+X2 = tokenizer.texts_to_sequences(data)
+X2 = pad_sequences(X2, maxlen=31)
+ans2 = model1.predict(X2)
+
+noise_factor = 0.5
+
+#encoder_input_data = ans + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=ans.shape) 
+#decoder_input_data = ans + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=ans.shape) 
+#decoder_target_data = ans1 + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=ans.shape) 
+
+x_noisy = ans + noise_factor * np.random.normal(loc=0.0, scale=1.0, size=ans.shape) 
+
+
+encoder_input_data = np.concatenate((ans,x_noisy))
+decoder_input_data = encoder_input_data
+decoder_target_data = np.concatenate((ans1,ans1))
+
 
 # configure
 num_encoder_tokens = 100
@@ -97,9 +126,9 @@ model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 # plot the model
 plot_model(model, to_file='model.png', show_shapes=True)
 
-encoder_input_data = ans
-decoder_input_data = ans
-decoder_target_data = ans1
+#encoder_input_data = x_train
+#decoder_input_data = x_train
+#decoder_target_data = y_train
 
 #train
 model.compile(optimizer='rmsprop', loss='categorical_crossentropy')
@@ -110,7 +139,7 @@ model.fit([encoder_input_data, decoder_input_data], decoder_target_data,
 
 # define encoder inference model
 encoder_model = Model(encoder_inputs, encoder_states)
-encoded_rep = np.asarray(encoder_model.predict(ans))
+encoded_rep = np.asarray(encoder_model.predict(ans2))
 encoded_arr = encoded_rep[0]
 # define decoder inference model
 decoder_state_input_h = Input(shape=(latent_dim,))
@@ -127,13 +156,46 @@ plot_model(decoder_model, to_file='decoder_model.png', show_shapes=True)
 avg = 0.0
 arrY = encoded_arr
 
+
 outfile = open("autoenc_model","wb")
 pickle.dump(arrY, outfile)
 outfile.close()
 
-File = open("schemas") #open file
-schemas = File.readlines() #read all lines
-File.close()
+y = arrY
+
+
+def CalcNDCG(Vector, k):
+    dScore = 0.0;
+    length = k
+    SortedVector = []
+    DCGVector = []
+    DCGSortedVector = []
+    for i in range(0, length):
+        SortedVector.append(Vector[i])
+    for i in range(0, length):
+	for j in range(0, length):
+            if(SortedVector[i] < SortedVector[j]):
+		temp = SortedVector[j];
+		SortedVector[j] = SortedVector[i];
+		SortedVector[i] = temp; 
+		
+    DCGVector.append(Vector[0])
+    DCGSortedVector.append(SortedVector[0])
+    if (DCGSortedVector[0]==0):
+        dScore=0.0
+    else:
+        dScore += float(DCGVector[0])/DCGSortedVector[0]
+    
+    for i in range (1, length):
+        DCGVector.append(DCGVector[i-1] + (Vector[i]/(math.log(i+1)/math.log(2.0))))
+	DCGSortedVector.append(DCGSortedVector[i-1] + (SortedVector[i]/(math.log(i+1)/math.log(2.0))))
+	if (DCGSortedVector[i] != 0):
+	    dScore += float(DCGVector[i])/DCGSortedVector[i]
+        else:
+	    dScore = 0
+			
+    #print (dScore)	
+    return (dScore/length);
 
 
 def calcAccuracy(neighbours, wpIn):
@@ -150,7 +212,7 @@ def calcAccuracy(neighbours, wpIn):
     return match/(k-1), vec
 
 
-y = arrY
+
 y_true = []
 y_pred = [1] * 9
 for j in range(2,11):
@@ -192,3 +254,8 @@ for j in range(2,11):
     avg_n = avg_n/len(y)
     print(avg_n)
 
+
+
+
+    
+ 

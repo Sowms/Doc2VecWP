@@ -10,7 +10,16 @@ File = open("schemas") #open file
 schemas = File.readlines() #read all lines
 File.close()
 
-inpFile = open("siamese_model_perturb_onlyNP","rb")
+File = open("retrieval_indices") #open file
+r_indices = File.readlines() #read all lines
+File.close()
+
+File = open("questions") #open file
+questions = File.readlines() #read all lines
+File.close()
+
+
+inpFile = open("autoenc_model","rb")
 itemlist = pickle.load(inpFile)
 inpFile.close()
 
